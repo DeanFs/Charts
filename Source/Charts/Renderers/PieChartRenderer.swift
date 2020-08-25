@@ -23,7 +23,7 @@ import Cocoa
 open class PieChartRenderer: DataRenderer
 {
     @objc open weak var chart: PieChartView?
-
+    
     @objc public init(chart: PieChartView, animator: Animator, viewPortHandler: ViewPortHandler)
     {
         super.init(animator: animator, viewPortHandler: viewPortHandler)
@@ -333,7 +333,7 @@ open class PieChartRenderer: DataRenderer
 
         context.saveGState()
         defer { context.restoreGState() }
-
+        
         for i in 0 ..< dataSets.count
         {
             guard let dataSet = dataSets[i] as? IPieChartDataSet else { continue }
@@ -344,7 +344,7 @@ open class PieChartRenderer: DataRenderer
             {
                 continue
             }
-
+            
             let iconsOffset = dataSet.iconsOffset
 
             let xValuePosition = dataSet.xValuePosition
@@ -360,7 +360,7 @@ open class PieChartRenderer: DataRenderer
             {
                 guard let e = dataSet.entryForIndex(j) else { continue }
                 let pe = e as? PieChartDataEntry
-
+                
                 if xIndex == 0
                 {
                     angle = 0.0
@@ -380,7 +380,6 @@ open class PieChartRenderer: DataRenderer
                 angle = angle + angleOffset
 
                 let transformedAngle = rotationAngle + angle * CGFloat(phaseY)
-
                 let value = usePercentValuesEnabled ? e.y / yValueSum * 100.0 : e.y
                 let valueText = formatter.stringForValue(
                     value,
@@ -395,7 +394,9 @@ open class PieChartRenderer: DataRenderer
                 let drawYOutside = drawValues && yValuePosition == .outsideSlice
                 let drawXInside = drawEntryLabels && xValuePosition == .insideSlice
                 let drawYInside = drawValues && yValuePosition == .insideSlice
-
+                
+                let tpercentColor = e.percentColor
+                let textHighLightColor = e.highlightTextColor
                 let valueTextColor = dataSet.valueTextColorAt(j)
                 let entryLabelColor = dataSet.entryLabelColor ?? chart.entryLabelColor
 
@@ -493,18 +494,34 @@ open class PieChartRenderer: DataRenderer
                     }
                     else if drawXOutside
                     {
-                        if j < data.entryCount && pe?.label != nil
-                        {
-                            ChartUtils.drawText(
-                                context: context,
-                                text: pe!.label!,
-                                point: CGPoint(x: labelPoint.x, y: labelPoint.y + lineHeight / 2.0),
-                                align: align,
-                                attributes: [
-                                    NSAttributedString.Key.font: entryLabelFont ?? valueFont,
-                                    NSAttributedString.Key.foregroundColor: entryLabelColor ?? valueTextColor]
-                            )
+                        if textHighLightColor != nil {
+                            if j < data.entryCount && pe?.label != nil
+                            {
+                                ChartUtils.drawText(
+                                    context: context,
+                                    text: pe!.label!,
+                                    point: CGPoint(x: labelPoint.x, y: labelPoint.y + lineHeight / 2.0),
+                                    align: align,
+                                    attributes: [
+                                        NSAttributedString.Key.font: entryLabelFont ?? valueFont,
+                                        NSAttributedString.Key.foregroundColor: textHighLightColor as Any]
+                                )
+                            }
+                        }else {
+                            if j < data.entryCount && pe?.label != nil
+                            {
+                                ChartUtils.drawText(
+                                    context: context,
+                                    text: pe!.label!,
+                                    point: CGPoint(x: labelPoint.x, y: labelPoint.y + lineHeight / 2.0),
+                                    align: align,
+                                    attributes: [
+                                        NSAttributedString.Key.font: entryLabelFont ?? valueFont,
+                                        NSAttributedString.Key.foregroundColor: entryLabelColor ?? valueTextColor]
+                                )
+                            }
                         }
+                        
                     }
                     else if drawYOutside
                     {
@@ -533,7 +550,7 @@ open class PieChartRenderer: DataRenderer
                             align: .center,
                             attributes: [NSAttributedString.Key.font: valueFont, NSAttributedString.Key.foregroundColor: valueTextColor]
                         )
-
+                        
                         if j < data.entryCount && pe?.label != nil
                         {
                             ChartUtils.drawText(
@@ -551,26 +568,50 @@ open class PieChartRenderer: DataRenderer
                     {
                         if j < data.entryCount && pe?.label != nil
                         {
-                            ChartUtils.drawText(
-                                context: context,
-                                text: pe!.label!,
-                                point: CGPoint(x: x, y: y + lineHeight / 2.0),
-                                align: .center,
-                                attributes: [
-                                    NSAttributedString.Key.font: entryLabelFont ?? valueFont,
-                                    NSAttributedString.Key.foregroundColor: entryLabelColor ?? valueTextColor]
-                            )
+                            if textHighLightColor != nil {
+                                ChartUtils.drawText(
+                                    context: context,
+                                    text: pe!.label!,
+                                    point: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                    align: .center,
+                                    attributes: [
+                                        NSAttributedString.Key.font: entryLabelFont ?? valueFont,
+                                        NSAttributedString.Key.foregroundColor: textHighLightColor as Any]
+                                )
+                            }else {
+                                ChartUtils.drawText(
+                                    context: context,
+                                    text: pe!.label!,
+                                    point: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                    align: .center,
+                                    attributes: [
+                                        NSAttributedString.Key.font: entryLabelFont ?? valueFont,
+                                        NSAttributedString.Key.foregroundColor: entryLabelColor ?? valueTextColor]
+                                )
+                            }
                         }
                     }
                     else if drawYInside
                     {
-                        ChartUtils.drawText(
-                            context: context,
-                            text: valueText,
-                            point: CGPoint(x: x, y: y + lineHeight / 2.0),
-                            align: .center,
-                            attributes: [NSAttributedString.Key.font: valueFont, NSAttributedString.Key.foregroundColor: valueTextColor]
-                        )
+                        if tpercentColor != nil
+                        {
+                            ChartUtils.drawText(
+                                context: context,
+                                text: valueText,
+                                point: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                align: .center,
+                                attributes: [NSAttributedString.Key.font: valueFont, NSAttributedString.Key.foregroundColor: tpercentColor as Any]
+                            )
+                        }else {
+                            ChartUtils.drawText(
+                                context: context,
+                                text: valueText,
+                                point: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                align: .center,
+                                attributes: [NSAttributedString.Key.font: valueFont, NSAttributedString.Key.foregroundColor: valueTextColor]
+                            )
+                        }
+                        
                     }
                 }
 

@@ -16,6 +16,12 @@ open class ChartDataEntry: ChartDataEntryBase, NSCopying
     /// the x value
     @objc open var x = 0.0
     
+    //percentColor
+    @objc open var percentColor: NSUIColor?
+    
+    //percentColor
+    @objc open var highlightTextColor: NSUIColor?
+    
     public required init()
     {
         super.init()
