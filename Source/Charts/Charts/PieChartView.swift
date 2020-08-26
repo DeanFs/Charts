@@ -159,7 +159,7 @@ open class PieChartView: PieRadarChartViewBase
             return
         }
 
-        let radius = adjustedRadius
+        let radius = adjustedRadius - self.paddingRadius
         
         let c = adjustedCenterOffsets()
         
@@ -662,6 +662,8 @@ open class PieChartView: PieRadarChartViewBase
             setNeedsDisplay()
         }
     }
+    
+    @objc open var paddingRadius: CGFloat = 0.0
     
     /// The max angle that is used for calculating the pie-circle.
     /// 360 means it's a full pie-chart, 180 results in a half-pie-chart.
