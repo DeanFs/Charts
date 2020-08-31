@@ -403,6 +403,7 @@ open class PieChartRenderer: DataRenderer
                 let entryLabelColor = dataSet.entryLabelColor ?? chart.entryLabelColor
 
                 if(noExtends) {
+                    xIndex += 1
                     continue
                 }
                 
