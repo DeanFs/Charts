@@ -19,7 +19,6 @@ open class PieChartDataEntry: ChartDataEntry
         super.init()
     }
     
-
     /// - Parameters:
     ///   - value: The value on the y-axis
     @objc public init(value: Double)
@@ -101,7 +100,6 @@ open class PieChartDataEntry: ChartDataEntry
     // MARK: Data property accessors
     
     @objc open var label: String?
-    
     
     @objc open var value: Double
     {

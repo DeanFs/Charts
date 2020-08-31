@@ -22,6 +22,12 @@ open class ChartDataEntry: ChartDataEntryBase, NSCopying
     //percentColor
     @objc open var highlightTextColor: NSUIColor?
     
+    
+    @objc open var innerlabel: String?
+    
+    //percentColor
+    @objc open var noExtends = false
+    
     public required init()
     {
         super.init()

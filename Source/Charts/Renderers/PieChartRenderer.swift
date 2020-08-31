@@ -381,7 +381,7 @@ open class PieChartRenderer: DataRenderer
 
                 let transformedAngle = rotationAngle + angle * CGFloat(phaseY)
                 let value = usePercentValuesEnabled ? e.y / yValueSum * 100.0 : e.y
-                let valueText = formatter.stringForValue(
+                var valueText = formatter.stringForValue(
                     value,
                     entry: e,
                     dataSetIndex: i,
@@ -395,11 +395,21 @@ open class PieChartRenderer: DataRenderer
                 let drawXInside = drawEntryLabels && xValuePosition == .insideSlice
                 let drawYInside = drawValues && yValuePosition == .insideSlice
                 
+                let noExtends = e.noExtends
+                let innerLabel = e.innerlabel
                 let tpercentColor = e.percentColor
                 let textHighLightColor = e.highlightTextColor
                 let valueTextColor = dataSet.valueTextColorAt(j)
                 let entryLabelColor = dataSet.entryLabelColor ?? chart.entryLabelColor
 
+                if(noExtends) {
+                    continue
+                }
+                
+                if(innerLabel != nil) {
+                    valueText = innerLabel ?? ""
+                }
+                
                 if drawXOutside || drawYOutside
                 {
                     let valueLineLength1 = dataSet.valueLinePart1Length

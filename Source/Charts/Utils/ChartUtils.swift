@@ -184,6 +184,10 @@ open class ChartUtils
             point.x -= text.size(withAttributes: attributes).width
         }
         
+        if(point.x < 5) {
+            point.x = 5
+        }
+        
         NSUIGraphicsPushContext(context)
         
         (text as NSString).draw(at: point, withAttributes: attributes)

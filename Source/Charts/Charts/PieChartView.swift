@@ -339,6 +339,23 @@ open class PieChartView: PieRadarChartViewBase
         return _absoluteAngles.firstIndex { $0 > a } ?? -1
     }
     
+    @objc open func setSelectIdx(_ selectIdx: Int)
+    {
+        // TODO: Return nil instead of -1
+        // take the current angle of the chart into consideration
+        if(selectIdx == -1) {
+            _indicesToHighlight.removeAll()
+            lastHighlighted = nil
+        }else if(selectIdx < _absoluteAngles.count) {
+            _indicesToHighlight.removeAll()
+            lastHighlighted = nil
+            let angle : CGFloat = _absoluteAngles[selectIdx] - 0.0001 + self.rotationAngle;
+            let location = CGPoint(x: centerCircleBox.x + cos(angle * .pi / 180.0) * radius / 2.0, y: centerCircleBox.y + sin(angle * .pi / 180.0) * radius / 2.0)
+            let high = self.getHighlightByTouchPoint(location)
+            self.highlightValue(high, callDelegate: false)
+        }
+    }
+    
     /// - Returns: The index of the DataSet this x-index belongs to.
     @objc open func dataSetIndexForIndex(_ xValue: Double) -> Int
     {
