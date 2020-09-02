@@ -400,7 +400,7 @@ open class PieChartRenderer: DataRenderer
                 let tpercentColor = e.percentColor
                 let textHighLightColor = e.highlightTextColor
                 let valueTextColor = dataSet.valueTextColorAt(j)
-                let entryLabelColor = dataSet.entryLabelColor ?? chart.entryLabelColor
+                let entryLabelColor = dataSet.entryLabelColor
 
                 if(noExtends) {
                     xIndex += 1
