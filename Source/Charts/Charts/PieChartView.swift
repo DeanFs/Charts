@@ -11,6 +11,8 @@
 
 import Foundation
 import CoreGraphics
+import SwiftUI
+import WidgetKit
 
 #if canImport(UIKit)
     import UIKit
@@ -84,6 +86,22 @@ open class PieChartView: PieRadarChartViewBase
     public required init?(coder aDecoder: NSCoder)
     {
         super.init(coder: aDecoder)
+    }
+    
+    @objc public static func reloadAllWidget() {
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadAllTimelines()
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    @objc public static func reloadWidgetWithKind(king:String) {
+        if #available(iOS 14.0, *) {
+            WidgetCenter.shared.reloadTimelines(ofKind: king)
+        } else {
+            // Fallback on earlier versions
+        }
     }
     
     internal override func initialize()
