@@ -90,7 +90,9 @@ open class PieChartView: PieRadarChartViewBase
     
     @objc public static func reloadAllWidget() {
         if #available(iOS 14.0, *) {
+            #if arch(arm64) || arch(i386) || arch(x86_64)
             WidgetCenter.shared.reloadAllTimelines()
+            #endif
         } else {
             // Fallback on earlier versions
         }
@@ -98,7 +100,9 @@ open class PieChartView: PieRadarChartViewBase
     
     @objc public static func reloadWidgetWithKind(king:String) {
         if #available(iOS 14.0, *) {
+            #if arch(arm64) || arch(i386) || arch(x86_64)
             WidgetCenter.shared.reloadTimelines(ofKind: king)
+            #endif
         } else {
             // Fallback on earlier versions
         }
