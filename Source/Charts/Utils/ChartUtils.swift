@@ -239,6 +239,10 @@ extension CGContext
         {
             point.x -= text.size(withAttributes: attributes).width
         }
+        // 卓越要加的代码
+        if(point.x < 5) {
+            point.x = 5
+        }
         return point
     }
     

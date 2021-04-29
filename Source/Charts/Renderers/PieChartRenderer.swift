@@ -26,7 +26,7 @@ open class PieChartRenderer: NSObject, DataRenderer
     public let animator: Animator
 
     @objc open weak var chart: PieChartView?
-
+    
     @objc public init(chart: PieChartView, animator: Animator, viewPortHandler: ViewPortHandler)
     {
         self.viewPortHandler = viewPortHandler
@@ -343,7 +343,7 @@ open class PieChartRenderer: NSObject, DataRenderer
             {
                 continue
             }
-
+            
             let iconsOffset = dataSet.iconsOffset
 
             let angleRadians = dataSet.valueLabelAngle.DEG2RAD
@@ -361,7 +361,7 @@ open class PieChartRenderer: NSObject, DataRenderer
             {
                 guard let e = dataSet.entryForIndex(j) else { continue }
                 let pe = e as? PieChartDataEntry
-
+                
                 if xIndex == 0
                 {
                     angle = 0.0
@@ -381,9 +381,8 @@ open class PieChartRenderer: NSObject, DataRenderer
                 angle = angle + angleOffset
 
                 let transformedAngle = rotationAngle + angle * CGFloat(phaseY)
-
                 let value = usePercentValuesEnabled ? e.y / yValueSum * 100.0 : e.y
-                let valueText = formatter.stringForValue(
+                var valueText = formatter.stringForValue(
                     value,
                     entry: e,
                     dataSetIndex: i,
@@ -391,15 +390,29 @@ open class PieChartRenderer: NSObject, DataRenderer
 
                 let sliceXBase = cos(transformedAngle.DEG2RAD)
                 let sliceYBase = sin(transformedAngle.DEG2RAD)
-                
+
                 let drawXOutside = sliceAngle > sliceTextDrawingThreshold && drawEntryLabels && xValuePosition == .outsideSlice
                 let drawYOutside = sliceAngle > sliceTextDrawingThreshold && drawValues && yValuePosition == .outsideSlice
                 let drawXInside = sliceAngle > sliceTextDrawingThreshold && drawEntryLabels && xValuePosition == .insideSlice
                 let drawYInside = sliceAngle > sliceTextDrawingThreshold && drawValues && yValuePosition == .insideSlice
                 
+                let noExtends = e.noExtends
+                let innerLabel = e.innerlabel
+                let tpercentColor = e.percentColor
+                let textHighLightColor = e.highlightTextColor
+                
                 let valueTextColor = dataSet.valueTextColorAt(j)
                 let entryLabelColor = dataSet.entryLabelColor
 
+                if(noExtends) {
+                    xIndex += 1
+                    continue
+                }
+                
+                if(innerLabel != nil) {
+                    valueText = innerLabel ?? ""
+                }
+                
                 if drawXOutside || drawYOutside
                 {
                     let valueLineLength1 = dataSet.valueLinePart1Length
@@ -491,15 +504,28 @@ open class PieChartRenderer: NSObject, DataRenderer
                     }
                     else if drawXOutside
                     {
-                        if j < data.entryCount && pe?.label != nil
-                        {
-                            context.drawText(pe!.label!,
-                                             at: CGPoint(x: labelPoint.x,
-                                                         y: labelPoint.y + lineHeight / 2.0),
-                                             align: align,
-                                             angleRadians: angleRadians,
-                                             attributes: [.font: entryLabelFont ?? valueFont,
-                                                          .foregroundColor: entryLabelColor ?? valueTextColor])
+                        if textHighLightColor != nil { // 卓越加的判断逻辑，已与原作者代码解决冲突
+                            if j < data.entryCount && pe?.label != nil
+                            {
+                                context.drawText(pe!.label!,
+                                                 at: CGPoint(x: labelPoint.x,
+                                                             y: labelPoint.y + lineHeight / 2.0),
+                                                 align: align,
+                                                 angleRadians: angleRadians,
+                                                 attributes: [.font: entryLabelFont ?? valueFont,
+                                                              .foregroundColor: textHighLightColor as Any])
+                            }
+                        }else {
+                            if j < data.entryCount && pe?.label != nil
+                            {
+                                context.drawText(pe!.label!,
+                                                 at: CGPoint(x: labelPoint.x,
+                                                             y: labelPoint.y + lineHeight / 2.0),
+                                                 align: align,
+                                                 angleRadians: angleRadians,
+                                                 attributes: [.font: entryLabelFont ?? valueFont,
+                                                              .foregroundColor: entryLabelColor ?? valueTextColor])
+                            }
                         }
                     }
                     else if drawYOutside
@@ -542,21 +568,39 @@ open class PieChartRenderer: NSObject, DataRenderer
                     {
                         if j < data.entryCount && pe?.label != nil
                         {
-                            context.drawText(pe!.label!,
-                                             at: CGPoint(x: x, y: y + lineHeight / 2.0),
-                                             align: .center,
-                                             angleRadians: angleRadians,
-                                             attributes: [.font: entryLabelFont ?? valueFont,
-                                                          .foregroundColor: entryLabelColor ?? valueTextColor])
+                            if textHighLightColor != nil { // 卓越加的判断逻辑 已解决冲突
+                                context.drawText(pe!.label!,
+                                                 at: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                                 align: .center,
+                                                 angleRadians: angleRadians,
+                                                 attributes: [.font: entryLabelFont ?? valueFont,
+                                                              .foregroundColor: textHighLightColor as Any])
+                            }else {
+                                context.drawText(pe!.label!,
+                                                 at: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                                 align: .center,
+                                                 angleRadians: angleRadians,
+                                                 attributes: [.font: entryLabelFont ?? valueFont,
+                                                              .foregroundColor: entryLabelColor ?? valueTextColor])
+                            }
                         }
                     }
                     else if drawYInside
                     {
-                        context.drawText(valueText,
-                                         at: CGPoint(x: x, y: y + lineHeight / 2.0),
-                                         align: .center,
-                                         angleRadians: angleRadians,
-                                         attributes: [.font: valueFont, .foregroundColor: valueTextColor])
+                        if tpercentColor != nil
+                        {
+                            context.drawText(valueText,
+                                             at: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                             align: .center,
+                                             angleRadians: angleRadians,
+                                             attributes: [.font: valueFont, .foregroundColor: tpercentColor as Any])
+                        }else {
+                            context.drawText(valueText,
+                                             at: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                             align: .center,
+                                             angleRadians: angleRadians,
+                                             attributes: [.font: valueFont, .foregroundColor: valueTextColor])
+                        }
                     }
                 }
 

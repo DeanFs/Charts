@@ -11,6 +11,8 @@
 
 import Foundation
 import CoreGraphics
+import SwiftUI
+import WidgetKit
 
 #if !os(OSX)
     import UIKit
@@ -80,6 +82,26 @@ open class PieChartView: PieRadarChartViewBase
     public required init?(coder aDecoder: NSCoder)
     {
         super.init(coder: aDecoder)
+    }
+    
+    @objc public static func reloadAllWidget() {
+        if #available(iOS 14.0, *) {
+            #if arch(arm64) || arch(i386) || arch(x86_64)
+            WidgetCenter.shared.reloadAllTimelines()
+            #endif
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    @objc public static func reloadWidgetWithKind(king:String) {
+        if #available(iOS 14.0, *) {
+            #if arch(arm64) || arch(i386) || arch(x86_64)
+            WidgetCenter.shared.reloadTimelines(ofKind: king)
+            #endif
+        } else {
+            // Fallback on earlier versions
+        }
     }
     
     internal override func initialize()
@@ -154,7 +176,7 @@ open class PieChartView: PieRadarChartViewBase
             return
         }
 
-        let radius = adjustedRadius
+        let radius = adjustedRadius - self.paddingRadius
         
         let c = adjustedCenterOffsets()
         
@@ -314,6 +336,23 @@ open class PieChartView: PieRadarChartViewBase
         // take the current angle of the chart into consideration
         let a = (angle - self.rotationAngle).normalizedAngle
         return _absoluteAngles.firstIndex { $0 > a } ?? -1
+    }
+    
+    @objc open func setSelectIdx(_ selectIdx: Int)
+    {
+        // TODO: Return nil instead of -1
+        // take the current angle of the chart into consideration
+        if(selectIdx == -1) {
+            _indicesToHighlight.removeAll()
+            lastHighlighted = nil
+        }else if(selectIdx < _absoluteAngles.count) {
+            _indicesToHighlight.removeAll()
+            lastHighlighted = nil
+            let angle : CGFloat = _absoluteAngles[selectIdx] - 0.0001 + self.rotationAngle;
+            let location = CGPoint(x: centerCircleBox.x + cos(angle * .pi / 180.0) * radius / 2.0, y: centerCircleBox.y + sin(angle * .pi / 180.0) * radius / 2.0)
+            let high = self.getHighlightByTouchPoint(location)
+            self.highlightValue(high, callDelegate: false)
+        }
     }
     
     /// - Returns: The index of the DataSet this x-index belongs to.
@@ -639,6 +678,8 @@ open class PieChartView: PieRadarChartViewBase
             setNeedsDisplay()
         }
     }
+    
+    @objc open var paddingRadius: CGFloat = 0.0
     
     /// The max angle that is used for calculating the pie-circle.
     /// 360 means it's a full pie-chart, 180 results in a half-pie-chart.

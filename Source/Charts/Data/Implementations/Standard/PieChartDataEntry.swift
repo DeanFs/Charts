@@ -19,7 +19,6 @@ open class PieChartDataEntry: ChartDataEntry
         super.init()
     }
     
-
     /// - Parameters:
     ///   - value: The value on the y-axis
     @objc public init(value: Double)
