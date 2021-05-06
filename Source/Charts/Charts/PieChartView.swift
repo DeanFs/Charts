@@ -343,10 +343,10 @@ open class PieChartView: PieRadarChartViewBase
         // TODO: Return nil instead of -1
         // take the current angle of the chart into consideration
         if(selectIdx == -1) {
-            _indicesToHighlight.removeAll()
+            highlighted.removeAll()
             lastHighlighted = nil
         }else if(selectIdx < _absoluteAngles.count) {
-            _indicesToHighlight.removeAll()
+            highlighted.removeAll()
             lastHighlighted = nil
             let angle : CGFloat = _absoluteAngles[selectIdx] - 0.0001 + self.rotationAngle;
             let location = CGPoint(x: centerCircleBox.x + cos(angle * .pi / 180.0) * radius / 2.0, y: centerCircleBox.y + sin(angle * .pi / 180.0) * radius / 2.0)
